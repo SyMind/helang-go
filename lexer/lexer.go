@@ -106,9 +106,6 @@ func (l *Lexer) Next() {
 		case -1:
 			l.Token = TEndOfFile
 
-		case '\r', '\n', '\u2028', '\u2029':
-			l.step()
-
 		case '[':
 			l.step()
 			l.Token = TOpenBracket
@@ -133,6 +130,14 @@ func (l *Lexer) Next() {
 			l.step()
 			l.Token = TColon
 
+		case '|':
+			l.step()
+			l.Token = TBar
+
+		case ';':
+			l.step()
+			l.Token = TColon
+
 		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 			l.parseNumber()
 
@@ -151,6 +156,7 @@ func (l *Lexer) Next() {
 				continue
 			}
 
+			fmt.Printf("Unexpected token %c", l.source[l.end])
 			l.SyntaxError(fmt.Sprintf("Unexpected token %c", l.source[l.end]))
 		}
 
@@ -183,7 +189,6 @@ func (l *Lexer) parseIdentifier() {
 	for {
 		l.step()
 		if IsWhitespace(l.codePoint) || l.codePoint == -1 {
-			l.step()
 			break
 		}
 	}
@@ -195,7 +200,6 @@ func (l *Lexer) parseIdentifier() {
 		l.Token = TIdentifier
 	}
 	l.Identifier = text
-
 }
 
 func (l *Lexer) SyntaxError(msg string) {
